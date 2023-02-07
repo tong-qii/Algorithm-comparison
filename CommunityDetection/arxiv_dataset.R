@@ -8,15 +8,13 @@ library(irlba)
 library(multiRDPG)
 library(ggplot2)
 
-setwd("/Users/tongqi/Desktop/papersandbooks")
-source("codes/functions.R")
-source("repos/mase/R/mase.R")
-source("repos/mase/R/parametric-bootstrap.R")
-source("repos/mase/R/sample_graphs.R")
-source("codes/Algcompare/jointembedding.R")
+source("./functions.R")
+source("./mase.R")
+source("./parametric-bootstrap.R")
+source("./sample_graphs.R")
+source("./jointembedding.R")
 
-arxiv<- read.table("./codes/Algcompare/arXiv-Netscience_Multiplex_Coauthorship/Dataset/arxiv_netscience_multiplex.edges", header=TRUE,
-                   sep=" ")
+arxiv<- read.table("./arxiv_netscience_multiplex.edges", header=TRUE, sep=" ")
 colnames(arxiv) = c("layerID","nodeID","nodeID2","weight")
 layers <- unique(arxiv$layerID)
 
@@ -347,34 +345,4 @@ arxiv
 
 
 
-
-  
-  
-  colname <-c("Omnipreds","MRDPGpreds","jointembpreds","Procpreds","Avgpreds")
-  lapply(colname, function(x){
-    data.frame(value = get(x)) %>% mutate(variable = x)-> df
-    return(df)
-  }) %>% bind_rows() -> data
-
-
-  lapply(colname, function(cvar) {
-    lapply(colname, function(nvar){
-
-      data %>% filter(variable %in% cvar) %>%
-        rename(M_cal = variable, value1 = value) %>%
-        bind_cols(
-          data %>% filter(variable %in% nvar) %>%
-            rename(M_row = variable, value2 = value))
-
-    }) %>% bind_rows()
-  }) %>% bind_rows() %>%
-    group_by(M_cal, M_row) %>%
-    summarise(value = adjustedRandIndex(value1, value2), .groups = "drop") ->
-    heatmapdata
-
-  ggplot(heatmapdata, aes(x = M_row, y = M_cal, fill = value)) +
-    geom_tile(color="black")+
-    scale_fill_gradient(low="white", high="darkgreen") +
-    xlab("methods")+
-    ylab("methods")
   
